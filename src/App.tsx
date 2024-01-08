@@ -21,14 +21,12 @@ function App() {
   };
 
   const getSudoku = async (solveClicked: boolean) => {
-    if (!solveClicked) {
-      const req = await fetch(
-        "https://sudoku-api.vercel.app/api/dosuku?query={newboard(limit:1){grids{value, solution}}}"
-      );
-      const payload = await req.json();
-      const solution = payload.newboard.grids[0].solution;
-      const initialSudoku = payload.newboard.grids[0].value;
-    }
+    const req = await fetch(
+      "https://sudoku-api.vercel.app/api/dosuku?query={newboard(limit:1){grids{value, solution}}}"
+    );
+    const payload = await req.json();
+    const solution = payload.newboard.grids[0].solution;
+    const initialSudoku = payload.newboard.grids[0].value;
 
     if (solveClicked) {
       const transposedSolution = solution[0].map((_: any, colIndex: number) =>
