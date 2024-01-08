@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./App.css";
 
 function App() {
+  const [solution, setSolution] = useState<number[][] | null>(null);
   const [grid, setGrid] = useState<number[][]>([
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -20,30 +21,33 @@ function App() {
     setGrid(newGrid);
   };
 
-  const getSudoku = async (solveClicked: boolean) => {
+  const solveSudoku = () => {
+    solution && setGrid(solution);
+  };
+
+  const getSudoku = async () => {
     const req = await fetch(
       "https://sudoku-api.vercel.app/api/dosuku?query={newboard(limit:1){grids{value, solution}}}"
     );
     const payload = await req.json();
-    const solution = payload.newboard.grids[0].solution;
-    const initialSudoku = payload.newboard.grids[0].value;
 
-    if (solveClicked) {
-      const transposedSolution = solution[0].map((_: any, colIndex: number) =>
-        solution.map((row: number[]) => row[colIndex])
-      );
-      setGrid(transposedSolution);
-    } else {
-      const transposedSudoku = initialSudoku[0].map(
-        (_: any, colIndex: number) =>
-          initialSudoku.map((row: number[]) => row[colIndex])
-      );
-      setGrid(transposedSudoku);
-    }
+    const initialSudoku = payload.newboard.grids[0].value;
+    const solution = payload.newboard.grids[0].solution;
+
+    const transposedSolution = solution[0].map((_: any, colIndex: number) =>
+      solution.map((row: number[]) => row[colIndex])
+    );
+
+    const transposedSudoku = initialSudoku[0].map((_: any, colIndex: number) =>
+      initialSudoku.map((row: number[]) => row[colIndex])
+    );
+
+    setSolution(transposedSolution);
+    setGrid(transposedSudoku);
   };
 
   useEffect(() => {
-    getSudoku(false);
+    getSudoku();
   }, []);
 
   return (
@@ -68,7 +72,7 @@ function App() {
             </div>
           );
         })}
-        <button onClick={() => getSudoku(true)}>Solve</button>
+        <button onClick={solveSudoku}>Solve</button>
       </div>
     </div>
   );
